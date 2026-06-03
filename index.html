@@ -87,13 +87,25 @@
       
     }
 
+    nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+     rgba(0,0,0,0.75) 0%,    /* nearly transparent at top */
+      rgba(0,0,0,0) 100%  /* dark at the bottom where text is */
+     );
+     z-index: -1;
+}
+
     .nav-brand {
       display: flex;
       align-items: center;
     }
 
     .nav-brand img {
-      height: 40px;      /* controls how tall the logo is inside the nav */
+      height: 50px;      /* controls how tall the logo is inside the nav */
       width: 125px;       /* keeps the logo's original proportions */
       object-fit: cover;
     }
@@ -564,7 +576,7 @@
        ============================================= -->
   <nav>
     <a href="#Banner" class="nav-brand">
-      <img src="assets/logo.PNG" alt="Logo">
+      <img src="assets/logo.png" alt="Logo">
     </a>
     <ul class="nav-links">
       <li><a href="#about">About Me</a></li>
