@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitasa KuKyo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <style>
+    /* =========================================
+       THEME — Edit these CSS variables to
+       instantly change the entire color scheme!
+       ========================================= */
+    :root {
+      --bg:          #111318;
+      --bg-alt:      #111318;
+      --bg-card:     #181b22;
+      --border:      rgba(255, 255, 255, 0.07);
+      --accent:      #92539e;
+      --accent-glow: rgba(249, 115, 22, 0.12);
+      --text-1:      #f3e0e2;
+      --text-2:      #f3e0e2;
+      --text-3:      #44475a;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --font-mono:    'DM Mono', 'Courier New', monospace;
+    }
+
+    /* =========================================
+       RESET
+       ========================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* Subtle dot-grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(155, 52, 152, 0.537) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* =========================================
+       LAYOUT
+       ========================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    section { padding: 3rem 0; }
+
+    /* =========================================
+       NAVIGATION
+       ========================================= */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(11, 13, 18, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-brand img {
+      height: 40px;      /* controls how tall the logo is inside the nav */
+      width: 125px;       /* keeps the logo's original proportions */
+      object-fit: cover;
+    }
+
+
+    .nav-links {
+      display: flex;
+      gap: 2.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--accent); }
+
+    /* =========================================
+       Banner
+       ========================================= */
+    #Banner {
+      background-image: url('assets/love&despair.png');
+      background-size: cover;
+      background-position: center top;
+      position: relative; /* needed for the overlay to work */
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+
+}
+
+/* This creates a semi-transparent dark layer over the photo */
+#Banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,    /* nearly transparent at top */
+    rgba(0,0,0,0.2) 100%  /* dark at the bottom where text is */
+  );
+  z-index: 0;
+}
+
+/* Make sure your content sits above the overlay */
+#Banner .container {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+}
+
+    .Banner-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: var(--text-1);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-align: center;
+      /* fade-up animation — see @keyframes at bottom */
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.15s;
+      -webkit-text-stroke: 0.2px black;
+    }
+
+    .Banner-name {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 9vw, 6.5rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      -webkit-text-stroke: 1.5px black;
+      
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.3s;
+      text-align: center;
+
+     
+    }
+
+    .Banner-name .highlight { color: var(--accent); }
+
+    .Banner-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.6s;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.6rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: all 0.22s;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-solid {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-solid:hover {
+      background: #C1822F;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .btn-clear {
+      background: transparent;
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-1);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: #CDFBFB;
+      color: #CDFBFB;
+      transform: translateY(-2px);
+    }
+
+    /* little "scroll down" indicator */
+    .banner-scroll-hint {
+      padding: 0.7rem 1.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      border-radius: 0px;
+      letter-spacing: 0.15em;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 1s;
+      width: fit-content; /* stops it from stretching full width */
+      
+    }
+ 
+    
+    /* =========================================
+       SECTION HEADER COMPONENTS
+       ========================================= */
+    .sec-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 15px;
+    }
+
+    /* =========================================
+       SCROLL-REVEAL — elements with class
+       "reveal" fade in when scrolled to
+       ========================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =========================================
+       ABOUT
+       ========================================= */
+    #about { background: var(--bg-alt); padding-top: 6rem; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr 320px;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-gallery-grid {
+      display: grid;
+      margin-top: 40px;
+      grid-template-columns:1fr 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-photo-wrap {
+      position: relative;
+      text-align: center;
+    }
+    
+
+    /* decorative border offset */
+    .about-photo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -7px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .about-text p {
+      color: var(--text-2);
+      margin-bottom: 1.1rem;
+      font-size: 1.025rem;
+      text-align: center;
+    }
+
+    /* =========================================
+       CONTACTS
+       ========================================= */
+    .contacts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .contact-card {
+      padding: 1.25rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .contact-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+
+    .contact-icon {
+      font-size: 1.6rem;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .contact-name {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .contact-level {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      margin-top: 0.2rem;
+    }
+
+    /* =========================================
+       EVENT
+       ========================================= */
+    #events { background: var(--bg-alt); }
+
+    .event-container{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      align-items: start;
+      justify-self: center;
+      max-width: 56.25rem;
+      width: 100%;
+      
+      
+    }
+    .events-list {
+      display: grid;
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .eventintro {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.25rem;
+      align-items: start;
+      padding: 1.75rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .eventintro:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 40px var(--accent-glow);
+    }
+
+    .event-card {
+      display: grid;
+      grid-template-columns: 48px 1fr auto; /* flag | text | status */
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      
+      max-width: 56.25rem;
+      
+      
+    }
+
+    .event-flag img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .event-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-1);
+    }
+
+    .event-name:hover {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-1);
+      text-decoration: underline;
+    }
+
+    .event-location,
+    .event-date {
+      font-size: 0.8rem;
+      color: var(--text-2);
+    }
+
+    /* status badge */
+    .event-status {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .event-status.confirmed {
+      color: #4ade80; /* green */
+    }
+
+    .event-status.pending {
+      color: var(--text-3); /* grey for unconfirmed */
+    }
+
+    .event-status.notattend {
+      color: #A72A2A;
+    }
+
+    .event-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .icon-link {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-2);
+      font-size: 1rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .icon-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* =========================================
+       Astral path
+       ========================================= */
+    #Astral { text-align: center; }
+
+    /* =========================================
+       FOOTER
+       ========================================= */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer .accent { color: var(--accent); }
+
+    /* =========================================
+       ANIMATIONS
+       ========================================= */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* =========================================
+       RESPONSIVE
+       ========================================= */
+    @media (max-width: 680px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .about-photo-wrap {
+        max-width: 200px;
+        margin: 0 auto;
+      }
+
+      .eventintro {
+        grid-template-columns: 1fr;
+      }
+
+      .event-container {
+        flex-direction: row;
+        grid-template-columns: 1fr; /* stack to single column on mobile */
+      }
+
+      .about-gallery-grid{
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links { display: none; }
+
+      section { padding: 4rem 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =============================================
+       NAV
+       ============================================= -->
+  <nav>
+    <a href="#Banner" class="nav-brand">
+      <img src="assets/logo.png" alt="Logo">
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About Me</a></li>
+      <li><a href="#astral">VTuber</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#contacts">Contacts</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- =============================================
+       Banner
+       ============================================= -->
+  <section id="Banner">
+    <div class="container">
+
+      <h1 class="Banner-name">
+        
+        <p class="Banner-eyebrow" style="margin-bottom: 8px;">The Dream Weaver</p>
+        <span class="highlight">Mitasa KuKyo</span><br>
+        ミタサ・クキョウ
+      </h1>
+
+      
+      <div class="Banner-buttons">
+        <a href="#events" class="btn btn-solid">Meet up?</a>
+        <a href="#contacts"  class="btn btn-outline">Say Hello!</a>
+        <span class="banner-scroll-hint btn btn-clear">— Scroll for more!</span>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =============================================
+       ABOUT
+       ============================================= -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-photo-wrap reveal">
+           <img src="assets/namemitasa.png" alt="Photo" style="width:100%; border-radius:6px;">
+        </div>
+
+        <div class="about-text">
+          <p class="sec-label">// — About Me</p>
+          <h2 class="sec-title" style="margin-bottom:1.5rem; text-align: center;">Nice to<br>meet you!</h2>
+
+          <p>
+            Hewwo! My name is Mitasa KuKyo,<br>
+            you can call me either names! <br>
+            I studied in Digital Engineering in Thailand!
+            I have interests in lots of things such as drawing or music instrument! Though I'm merely a beginner in every way, 
+            but I'm happy to learn new things!
+
+          </p>
+          <p>
+            Mitasa. The Purple Siamese Cat <br>
+            KuKyo. The Purple Indo-Chinese Tiger<br>
+            <br>
+            2 Different forms, with different traits.<br>
+            But at the end of the day, it's still me!<br><br>
+            
+          </p>
+
+        </div>
+        <div class="about-photo-wrap reveal">
+            <img src="assets/namekukyo.png" alt="Photo" style="width:100%; border-radius:6px;">
+          </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       ASTRAL PATH
+       ============================================= -->
+  <section id="astral">
+    <div class="container" >
+      <p class="sec-label reveal">// — I almost forgot to mention this!</p>
+      <h2 class="sec-title reveal">I am also a VTuber!</h2>
+      <div class="about-grid">
+
+        <div class="about-photo-wrap reveal">
+           <img src="assets/webbiomita.png" alt="Photo" style="width:100%; border-radius:6px;">
+        </div>
+        <p class="about-text reveal" style="text-align: center; margin-top: 18px;">
+          I started streaming a couple years ago,<br>back when I first debut as KuKyo!<br><br>
+          Later on, with the help of OnFuwa. I was finally be able to own a really good vtube model.
+          And that is Mitasa! I usually stream on Twitch, but sometimes I also stream on TikTok as well!<br><br>
+          I mostly play story driven games such as Dishonored, RE, Alan Wake.
+          Sometimes when I had nothing to play, I turn to online games such as Deadlock, or a little activity like drawing!<br><br>
+          Mitasa made by OnFuwa<br>
+          KuKyo made by Jay Gallery, Kyohaku_J
+        </p>
+
+        <div class="about-photo-wrap reveal style grid-template-columns:1fr;">
+           <img src="assets/webbiokuk.png" alt="Photo" style="width:100%; border-radius:6px;">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+   <!-- =============================================
+       EVENT
+       ============================================= -->
+  <section id="events">
+    <div class="container">
+      <p class="sec-label reveal">// Conventions</p>
+      <h2 class="sec-title reveal">Events</h2>
+      <p>Upcoming events that we can meet!</p> <br>
+      <div class="event-container">
+        <div class="event-card">
+          <!-- column 1: flag/picture -->
+          <div class="event-flag">
+            <img src="assets/th flag.png" alt="Thailand flag">
+          </div>
+
+          <!-- column 2: text info -->
+          <div class="event-info">
+            <div class="event-name">
+              <a href="https://2026.thaitails.net" target=_blank>Thaitails 2026</a></div>
+            <div class="event-location">Bangkok, Thailand</div>
+            <div class="event-date">21-22 March 2026</div>
+          </div>
+
+          <!-- column 3: status -->
+          <div class="event-status notattend">
+            <i class="fa-solid fa-times-circle"></i> NOT ATTENDING
+          </div>
+        </div>
+
+        <div class="event-card">
+          <!-- column 1: flag/picture -->
+          <div class="event-flag">
+            <img src="assets/th flag.png" alt="Thailand flag">
+          </div>
+
+          <!-- column 2: text info -->
+          <div class="event-info">
+            <div class="event-name">
+              <a href="https://siampaws.com" target=_blank>SiamPaw 2026</div></a>
+            <div class="event-location">Bangkok, Thailand</div>
+            <div class="event-date">6-7 June 2026</div>
+          </div>
+
+          <!-- column 3: status -->
+          <div class="event-status notattend">
+            <i class="fa-solid fa-times-circle"></i> NOT ATTENDING
+          </div>
+        </div>
+        
+        <div class="event-card">
+          <!-- column 1: flag/picture -->
+          <div class="event-flag">
+            <img src="assets/th flag.png" alt="Thailand flag">
+          </div>
+
+          <!-- column 2: text info -->
+          <div class="event-info">
+            <div class="event-name">
+              <a href="https://tacra.market" target=_blank>TACRA 2026</div></a>
+            <div class="event-location">Bangkok, Thailand</div>
+            <div class="event-date">1 August 2026</div>
+          </div>
+
+          <!-- column 3: status -->
+          <div class="event-status confirmed">
+            <i class="fa-solid fa-circle-check"></i> ATTENDING</div>
+        </div>
+        
+          <div class="event-card">
+          <!-- column 1: flag/picture -->
+            <div class="event-flag">
+              <img src="assets/th flag.png" alt="Thailand flag">
+            </div>
+
+            <!-- column 2: text info -->
+            <div class="event-info">
+              <div class="event-name">
+                <a href="https://bangkokbeasts.com" target=_blank>BangkokBeast 2026</div></a>
+              <div class="event-location">Bangkok, Thailand</div>
+              <div class="event-date">14-15 November 2026</div>
+            </div>
+
+            <!-- column 3: status -->
+            <div class="event-status confirmed">
+              <i class="fa-solid fa-circle-check"></i> ATTENDING
+            </div>
+          </div>
+      </div>
+</div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       contactS
+       ============================================= -->
+  <section id="contacts">
+    <div class="container">
+      <p class="sec-label reveal">// Socials</p>
+      <h2 class="sec-title reveal">Contacts</h2>
+      <p style="margin-bottom: 15px;">Feel free to hit me up if you want to talk!<br></p>
+
+      <div class="contacts-grid">
+        
+        <div class="contact-card reveal">
+          <a href="https://www.facebook.com/mitasa.kukyo" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-facebook-square"></i></div>
+          <div class="contact-name">Facebook</div>
+          <div class="contact-level">Mitasa KuKyo</div></a>
+        </div>
+
+
+        <div class="contact-card reveal">
+          <a href="https://x.com/@Mitasarenai_19" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-x-twitter"></i></div>
+          <div class="contact-name">X (Twitter)</div>
+          <div class="contact-level">@Mitasarenai_19</div></a>
+        </div>
+
+        <div class="contact-card reveal">
+          <a href="https://bsky.app/profile/mitasarenai19.bsky.social" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-bluesky"></i></div>
+          <div class="contact-name">Blue Sky</div>
+          <div class="contact-level">@Mitasanai19</div></a>
+        </div>
+
+        <div class="contact-card reveal">
+          <a href="https://www.twitch.tv/mitasa_kukyo" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-twitch" aria-hidden="true"></i></div>
+          <div class="contact-name">Twitch</div>
+          <div class="contact-level">Mitasa KuKyo</div></a>
+        </div>
+
+        <div class="contact-card reveal">
+          <a href="https://www.youtube.com/@Mitasarenai_19" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-youtube" aria-hidden="true"></i></div>
+          <div class="contact-name">YouTube</div>
+          <div class="contact-level">@Mitasarenai_19</div></a>
+        </div>
+
+        <div class="contact-card reveal">
+          <a href="https://www.tiktok.com/mitasarenai_19" target=_blank>
+          <div class="contact-icon"><i class="fa-brands fa-tiktok"></i></div>
+          <div class="contact-name">TikTok</div>
+          <div class="contact-level">Mitasa KuKyo</div></a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  
+<!-- =============================================
+       Gallery
+       ============================================= -->
+  <section id ="gallery">
+    <div class="container">
+      <p class="sec-label reveal">// Past Commission</p>
+      <h2 class="sec-title reveal">Gallery</h2>
+      <div class="about-gallery-grid">
+        <div class="about-photo-wrap">
+          <img src="assets/kk_axe.png" alt="axe">
+          <p>"One seat on the throne, <br></bt>one foot in the grave" by Xi</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/mita_apollo.PNG" alt="apollo">
+          <p>"Heed me wanderers!" by Xi</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/kk_starry.png" alt="starry">
+          <p>"Starry Night" by Retsito</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/love&despair.png" alt="l&d">
+          <p>"With Love! In the name of Justice!" <br> by ArtAmater (Bank)</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/kukyo_ref.PNG" alt="kref">
+          <p>KuKyo Reference Sheet <br> by LLSM (Kurono Jetto)</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/mita_ref_1.PNG" alt="mref1">
+          <p>Mitasa Reference Sheet <br> by LLSM (Kurono Jetto)</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/mita_hachi.jpg" alt="hachiko">
+          <p>"Where did you go, Hachiko?" <br> by ArtAmater (Bank)</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/namemitasa.png" alt="namem">
+          <p>Name Card Design for Thaitails 2025 <br> by Kulz Lavee</p>
+        </div>
+        <div class="about-photo-wrap">
+          <img src="assets/namekukyo.png" alt="namek">
+          <p>Name Card Design for Thaitails 2025 <br> by Kulz Lavee</p>
+        </div>
+        
+        
+      </div>
+    </div>
+  </section>
+       
+
+  <!-- =============================================
+       FOOTER
+       ============================================= -->
+  <footer>
+    <p>
+      <span class="accent">Mitasa KuKyo</span>
+      
+      &copy; <span id="year"></span>
+    </p>
+  </footer>
+
+
+  <!-- =============================================
+       JAVASCRIPT
+       ============================================= -->
+  <script>
+    /* ------------------------------------------
+       Auto-update the copyright year in the footer
+    ------------------------------------------ */
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+
+    /* ------------------------------------------
+       SCROLL REVEAL
+       Watches all .reveal elements and adds
+       .visible when they enter the viewport.
+       This triggers the CSS fade-up transition.
+    ------------------------------------------ */
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, idx) => {
+          if (entry.isIntersecting) {
+            // Slight stagger between sibling cards
+            entry.target.style.transitionDelay = `${(idx % 4) * 0.07}s`;
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target); // Animate only once
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+
+    /* ------------------------------------------
+       ACTIVE NAV LINK
+       Highlights the nav link for whichever
+       section is currently on screen.
+    ------------------------------------------ */
+    const sections  = document.querySelectorAll('section[id]');
+    const navLinks  = document.querySelectorAll('.nav-links a');
+
+    const navObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle(
+            'active',
+            link.getAttribute('href') === '#' + entry.target.id
+          );
+        });
+      }
+    });
+  },
+  {
+    threshold: 0,
+    rootMargin: '-30% 0px -60% 0px'  /* triggers when section crosses the middle of the screen */
+  }
+);
+
+    sections.forEach(s => navObserver.observe(s));
+  </script>
+
+</body>
+</html>
